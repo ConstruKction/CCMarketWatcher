@@ -1,11 +1,11 @@
 import argparse
 import logging
 
-from Item import Item
-from Filter import Filter
-from MarketRequest import MarketRequest
-from Parser import Parser
-from SplitArguments import SplitArguments
+from item import Item
+from item_filter import ItemFilter
+from market_request import MarketRequest
+from parser import Parser
+from split_args import SplitArgs
 
 MARKET_JSON = MarketRequest().get_json()
 
@@ -48,22 +48,22 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-r', '--region',
                         help='narrow down search to eu or us server',
-                        action=SplitArguments)
+                        action=SplitArgs)
     parser.add_argument('-i', '--item',
                         help='comma-separated item names (e.g. KylinGem, SoftBoots)',
-                        action=SplitArguments)
+                        action=SplitArgs)
     parser.add_argument('-q', '--quality',
                         help='comma-separated qualities (e.g. Elite,Super)',
-                        action=SplitArguments)
+                        action=SplitArgs)
     parser.add_argument('-p', '--plus',
                         help='comma-separated plus (e.g. 1,2,3)',
-                        action=SplitArguments)
+                        action=SplitArgs)
     parser.add_argument('-g1', '--gem1',
                         help='1st socket gem (e.g. SuperDragonGem,SuperPhoenixGem)',
-                        action=SplitArguments)
+                        action=SplitArgs)
     parser.add_argument('-g2', '--gem2',
                         help='2nd socket gem (e.g. NormalFuryGem,RefinedMoonGem)',
-                        action=SplitArguments)
+                        action=SplitArgs)
     parser.add_argument('-c', '--cost',
                         help='max cost of an item',
                         type=int)
@@ -73,6 +73,6 @@ if __name__ == '__main__':
                         choices=['name', 'quality', 'plus', 'gem1', 'gem2', 'seller', 'price'])
     args = parser.parse_args()
 
-    item_filter = Filter(args.region, args.quality, args.plus, args.gem1, args.gem2, args.cost)
+    item_filter = ItemFilter(args.region, args.quality, args.plus, args.gem1, args.gem2, args.cost)
 
     log_details(create_item_object_list(args.item, item_filter))

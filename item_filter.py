@@ -1,4 +1,4 @@
-class Filter:
+class ItemFilter:
     def __init__(self, region, quality, plus, gem1, gem2, price):
         self.region = region
         self.quality = quality

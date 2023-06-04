@@ -1,7 +1,7 @@
 import logging
 import locale
 
-from Parser import Parser
+from parser import Parser
 
 locale.setlocale(locale.LC_ALL, '')
 
