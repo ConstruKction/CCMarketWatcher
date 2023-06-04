@@ -5,7 +5,6 @@ from item import Item
 from item_filter import ItemFilter
 from market_request import MarketRequest
 from parser import Parser
-from sorter import Sorter
 from split_args import SplitArgs
 
 MARKET_JSON = MarketRequest().get_json()
@@ -13,40 +12,65 @@ MARKET_JSON = MarketRequest().get_json()
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 
 
-def create_item_object_list(items_string, itemfilter):
+def create_item_object_list(items_string):
     item_object_list = []
-
-    sorter = Sorter()
 
     if items_string is None:
         return item_object_list
 
     for lookup_item_name in items_string:
-        item_object = Item(lookup_item_name)
-        item_object.filter_item_listings(get_item_group(lookup_item_name), itemfilter)
-        item_object_list.append(item_object)
+        item_object_list.extend(filter_item_listings(get_item_group(lookup_item_name)))
 
-        log_details(sorted(item_object.total_list, key=lambda item: item[sorter.get_sort_by(args.sort)]))
-
-    return item_object_list
+    log_details(sorted(item_object_list, key=lambda item: getattr(item, args.sort.replace('name', 'full_name'))))
 
 
 def log_details(item_list):
     item_parser = Parser()
 
     for item in item_list:
-        details = f"{item['QualityName']}{item['AttributeName']}" \
-                  f"{item_parser.parse_plus(item['AdditionLevel'])}" \
-                  f"{item_parser.parse_gems(item['Gem1'], item['Gem2'])} " \
-                  f"spotted on {item['ServerName']}! " \
-                  f"Sold by {item['SellerName']}({item['PositionX']},{item['PositionY']}) " \
-                  f"for {item['Price']:n} silver.".replace('None', '')
+        details = f"{item.quality}{item.full_name}" \
+                  f"{item_parser.parse_plus(item.plus)}" \
+                  f"{item_parser.parse_gems(item.gem1, item.gem2)} " \
+                  f"spotted on {item.region}! " \
+                  f"Sold by {item.seller}({item.position}) " \
+                  f"for {item.price:n} silver.".replace('None', '')
 
         logging.info(details)
 
 
 def get_item_group(item_name):
     return [json_object for json_object in MARKET_JSON if item_name in json_object['AttributeName']]
+
+
+def filter_item_listings(item_objects_list):
+    item_list = []
+    for item_object in item_objects_list:
+        if item_filter.region is not None and item_object['ServerName'] not in item_filter.region:
+            continue
+        elif item_filter.quality is not None and item_object['QualityName'] not in item_filter.quality:
+            continue
+        elif item_filter.plus is not None and str(item_object['AdditionLevel']) not in item_filter.plus:
+            continue
+        elif item_filter.gem1 is not None and item_object['Gem1'] not in item_filter.gem1:
+            continue
+        elif item_filter.gem2 is not None and item_object['Gem2'] not in item_filter.gem2:
+            continue
+        elif item_filter.price is not None and item_object['Price'] > item_filter.price:
+            continue
+        else:
+            return_item = Item()
+            return_item.full_name = item_object['AttributeName']
+            return_item.region = item_object['ServerName']
+            return_item.quality = item_object['QualityName']
+            return_item.gem1 = item_object['Gem1']
+            return_item.gem2 = item_object['Gem2']
+            return_item.plus = item_object['AdditionLevel']
+            return_item.seller = item_object['SellerName']
+            return_item.position = f"{item_object['PositionX']},{item_object['PositionY']}"
+            return_item.price = item_object['Price']
+            item_list.append(return_item)
+
+    return item_list
 
 
 if __name__ == '__main__':
@@ -80,4 +104,4 @@ if __name__ == '__main__':
 
     item_filter = ItemFilter(args.region, args.quality, args.plus, args.gem1, args.gem2, args.cost)
 
-    create_item_object_list(args.item, item_filter)
+    create_item_object_list(args.item)
