@@ -1,7 +1,4 @@
-import logging
 import locale
-
-from parser import Parser
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -18,6 +15,7 @@ class Item:
         self.price = 0
         self.seller = ''
         self.position = ''
+        self.total_list = []
 
     def filter_item_listings(self, item_objects_list, item_filter):
         for item_object in item_objects_list:
@@ -43,16 +41,4 @@ class Item:
                 self.seller = item_object['SellerName']
                 self.position = f"{item_object['PositionX']},{item_object['PositionY']}"
                 self.price = item_object['Price']
-                self.log_details()
-
-    def log_details(self):
-        item_parser = Parser()
-
-        details = f"{self.quality}{self.full_name}" \
-                  f"{item_parser.parse_plus(self.plus)}" \
-                  f"{item_parser.parse_gems(self.gem1, self.gem2)} " \
-                  f"spotted on {self.region}! " \
-                  f"Sold by {self.seller}({self.position}) " \
-                  f"for {self.price:n} silver.".replace('None', '')
-
-        logging.info(details)
+                self.total_list.append(item_object)

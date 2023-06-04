@@ -5,6 +5,7 @@ from item import Item
 from item_filter import ItemFilter
 from market_request import MarketRequest
 from parser import Parser
+from sorter import Sorter
 from split_args import SplitArgs
 
 MARKET_JSON = MarketRequest().get_json()
@@ -14,6 +15,9 @@ logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 
 def create_item_object_list(items_string, itemfilter):
     item_object_list = []
+
+    sorter = Sorter()
+
     if items_string is None:
         return item_object_list
 
@@ -22,20 +26,21 @@ def create_item_object_list(items_string, itemfilter):
         item_object.filter_item_listings(get_item_group(lookup_item_name), itemfilter)
         item_object_list.append(item_object)
 
+        log_details(sorted(item_object.total_list, key=lambda item: item[sorter.get_sort_by(args.sort)]))
+
     return item_object_list
-#    return sorted(item_object_list, key=lambda item: getattr(item, args.sort))
 
 
 def log_details(item_list):
     item_parser = Parser()
 
     for item in item_list:
-        details = f"{item.quality}{item.full_name}" \
-                  f"{item_parser.parse_plus(item.plus)}" \
-                  f"{item_parser.parse_gems(item.gem1, item.gem2)} " \
-                  f"spotted on {item.region}! " \
-                  f"Sold by {item.seller}({item.position}) " \
-                  f"for {item.price:n} silver.".replace('None', '')
+        details = f"{item['QualityName']}{item['AttributeName']}" \
+                  f"{item_parser.parse_plus(item['AdditionLevel'])}" \
+                  f"{item_parser.parse_gems(item['Gem1'], item['Gem2'])} " \
+                  f"spotted on {item['ServerName']}! " \
+                  f"Sold by {item['SellerName']}({item['PositionX']},{item['PositionY']}) " \
+                  f"for {item['Price']:n} silver.".replace('None', '')
 
         logging.info(details)
 
@@ -75,4 +80,4 @@ if __name__ == '__main__':
 
     item_filter = ItemFilter(args.region, args.quality, args.plus, args.gem1, args.gem2, args.cost)
 
-    log_details(create_item_object_list(args.item, item_filter))
+    create_item_object_list(args.item, item_filter)
