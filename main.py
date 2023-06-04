@@ -10,6 +10,8 @@ MARKET_JSON = MarketRequest().get_json()
 
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 
+item_parser = Parser()
+
 
 def create_item_object_list(items_string):
     item_object_list = []
@@ -24,12 +26,10 @@ def create_item_object_list(items_string):
 
 
 def log_details(item_list):
-    item_parser = Parser()
-
     for item in item_list:
         details = f"{item.quality}{item.full_name}" \
                   f"{item_parser.parse_plus(item.plus)}" \
-                  f"{item_parser.parse_gems(item.gem1, item.gem2)} " \
+                  f"{item_parser.abbreviate_gems(item.gem1, item.gem2)} " \
                   f"spotted on {item.region}! " \
                   f"Sold by {item.seller}({item.position}) " \
                   f"for {item.price:n} silver.".replace('None', '')
@@ -43,6 +43,7 @@ def get_item_group(item_name):
 
 def filter_item_listings(item_objects_list):
     item_list = []
+
     for item_object in item_objects_list:
         if args.region and item_object['ServerName'] not in args.region:
             continue
@@ -50,9 +51,9 @@ def filter_item_listings(item_objects_list):
             continue
         elif args.plus and str(item_object['AdditionLevel']) not in args.plus:
             continue
-        elif args.gem1 and item_object['Gem1'] not in args.gem1:
+        elif args.gem1 and item_object['Gem1'] not in item_parser.expand_gems(args.gem1):
             continue
-        elif args.gem2 and item_object['Gem2'] not in args.gem2:
+        elif args.gem2 and item_object['Gem2'] not in item_parser.expand_gems(args.gem2):
             continue
         elif args.cost and item_object['Price'] > args.cost:
             continue
