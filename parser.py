@@ -7,7 +7,7 @@ class Parser:
         return f"(+{plus})"
 
     @staticmethod
-    def parse_gems(gem1, gem2):
+    def abbreviate_gems(gem1, gem2):
         dict_replacement = {
             'None': '',
             'Empty': 'E',
@@ -29,3 +29,28 @@ class Parser:
             gems = gems.replace(key, value)
 
         return gems
+
+    @staticmethod
+    def expand_gems(gems):
+        expanded_gems = []
+
+        quality_dict_replacement = {
+            'S': 'Super',
+            'R': 'Refined',
+            'N': 'Normal'
+        }
+
+        gem_dict_replacements = {
+            'DG': 'DragonGem',
+            'PG': 'PhoenixGem',
+            'FG': 'FuryGem',
+            'MG': 'MoonGem',
+            'VG': 'VioletGem',
+            'RG': 'RainbowGem'
+        }
+
+        for gem in gems:
+            expanded_gems.append(f"{quality_dict_replacement.get(gem[0].upper())}"
+                                 f"{gem_dict_replacements.get(gem[1:3].upper())}")
+
+        return expanded_gems
