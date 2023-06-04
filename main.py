@@ -44,17 +44,17 @@ def get_item_group(item_name):
 def filter_item_listings(item_objects_list):
     item_list = []
     for item_object in item_objects_list:
-        if args.region is not None and item_object['ServerName'] not in args.region:
+        if args.region and item_object['ServerName'] not in args.region:
             continue
-        elif args.quality is not None and item_object['QualityName'] not in args.quality:
+        elif args.quality and item_object['QualityName'] not in args.quality:
             continue
-        elif args.plus is not None and str(item_object['AdditionLevel']) not in args.plus:
+        elif args.plus and str(item_object['AdditionLevel']) not in args.plus:
             continue
-        elif args.gem1 is not None and item_object['Gem1'] not in args.gem1:
+        elif args.gem1 and item_object['Gem1'] not in args.gem1:
             continue
-        elif args.gem2 is not None and item_object['Gem2'] not in args.gem2:
+        elif args.gem2 and item_object['Gem2'] not in args.gem2:
             continue
-        elif args.cost is not None and item_object['Price'] > args.cost:
+        elif args.cost and item_object['Price'] > args.cost:
             continue
         else:
             return_item = Item()
