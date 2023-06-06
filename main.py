@@ -22,7 +22,9 @@ def create_item_object_list(items_string):
     for lookup_item_name in items_string:
         item_object_list.extend(filter_item_listings(get_item_group(lookup_item_name)))
 
-    log_details(sorted(item_object_list, key=lambda item: getattr(item, args.sort.replace('name', 'full_name'))))
+    log_details(sorted(item_object_list,
+                       key=lambda item: getattr(item, args.sort.replace('name', 'full_name')),
+                       reverse=args.desc))
 
 
 def log_details(item_list):
@@ -88,18 +90,20 @@ if __name__ == '__main__':
                         help='comma-separated plus (e.g. 1,2,3)',
                         action=SplitArgs)
     parser.add_argument('-g1', '--gem1',
-                        help='1st socket gem (e.g. SuperDragonGem,SuperPhoenixGem)',
+                        help='1st socket gem(s) (e.g. sdg,srg)',
                         action=SplitArgs)
     parser.add_argument('-g2', '--gem2',
-                        help='2nd socket gem (e.g. NormalFuryGem,RefinedMoonGem)',
+                        help='2nd socket gem(s) (e.g. nfg,rmg,spg)',
                         action=SplitArgs)
     parser.add_argument('-c', '--cost',
-                        help='max cost of an item',
+                        help='max price of an item',
                         type=int)
-    parser.add_argument('-s',
-                        '--sort',
+    parser.add_argument('-s', '--sort',
                         help='sort by (lowest number/alphabetically from top)',
-                        choices=['name', 'quality', 'plus', 'gem1', 'gem2', 'seller', 'price'])
+                        choices=['region', 'name', 'quality', 'plus', 'gem1', 'gem2', 'seller', 'price'])
+    parser.add_argument('-d', '--desc',
+                        help='reverse sorting',
+                        action='store_true')
     args = parser.parse_args()
 
     create_item_object_list(args.item)
