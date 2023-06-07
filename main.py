@@ -1,10 +1,13 @@
 import argparse
+import locale
 import logging
 
 from item import Item
 from market_request import MarketRequest
 from parser import Parser
-from split_args import SplitArgs
+from parse_args import ParseArgs
+
+locale.setlocale(locale.LC_ALL, '')
 
 MARKET_JSON = MarketRequest().get_json()
 
@@ -50,13 +53,13 @@ def filter_item_listings(item_objects_list):
     item_list = []
 
     for item_object in item_objects_list:
-        if args.region and item_object['ServerName'] not in args.region:
+        if args.region and item_object['ServerName'].casefold() not in args.region:
             continue
         elif args.cat and item_object['ItemMajorClass'].replace(' ', '_') not in args.cat:
             continue
         elif args.subcat and item_object['ItemMinorClass'].replace(' ', '_') not in args.subcat:
             continue
-        elif args.quality and item_object['QualityName'] not in args.quality:
+        elif args.quality and item_object['QualityName'].casefold() not in args.quality:
             continue
         elif args.plus and str(item_object['AdditionLevel']) not in args.plus:
             continue
@@ -87,29 +90,29 @@ def filter_item_listings(item_objects_list):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-r', '--region',
-                        help='narrow down search to eu or us server',
-                        action=SplitArgs)
+                        help='comma-separated server names (e.g. Classic_EU,Classic_US)',
+                        action=ParseArgs)
     parser.add_argument('-i', '--item',
-                        help='comma-separated item names (e.g. KylinGem, SoftBoots)',
-                        action=SplitArgs)
+                        help='comma-separated item names (e.g. KylinGem,SoftBoots)',
+                        action=ParseArgs)
     parser.add_argument('--cat',
-                        help='comma-separated major item classes',
-                        action=SplitArgs)
+                        help='comma-separated major item classes (e.g. Armor,Headgear)',
+                        action=ParseArgs)
     parser.add_argument('--subcat',
-                        help='comma-separated minor item classes',
-                        action=SplitArgs)
+                        help='comma-separated minor item classes (e.g. Earring,Sword,Dragon_Ball',
+                        action=ParseArgs)
     parser.add_argument('-q', '--quality',
                         help='comma-separated qualities (e.g. Elite,Super)',
-                        action=SplitArgs)
+                        action=ParseArgs)
     parser.add_argument('-p', '--plus',
                         help='comma-separated plus (e.g. 1,2,3)',
-                        action=SplitArgs)
+                        action=ParseArgs)
     parser.add_argument('-g1', '--gem1',
                         help='1st socket gem(s) (e.g. sdg,srg)',
-                        action=SplitArgs)
+                        action=ParseArgs)
     parser.add_argument('-g2', '--gem2',
                         help='2nd socket gem(s) (e.g. nfg,rmg,spg)',
-                        action=SplitArgs)
+                        action=ParseArgs)
     parser.add_argument('-c', '--cost',
                         help='max price of an item',
                         type=int)

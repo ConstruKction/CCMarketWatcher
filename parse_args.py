@@ -1,16 +1,23 @@
 import argparse
 import logging
 import pathlib
+import re
+import sys
+
+LEGAL_CHARACTERS = re.compile('^[A-Za-z0-9,]*$')
 
 
-class SplitArgs(argparse.Action):
+class ParseArgs(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        split_value = values.split(',')
+        if not re.match(LEGAL_CHARACTERS, values):
+            sys.exit(logging.critical("Only characters a-z and numbers 0-9 allowed without spaces!"))
 
-        setattr(namespace, self.dest, split_value)
+        split_arg_values = values.split(',')
+
+        setattr(namespace, self.dest, split_arg_values)
 
         if self.dest == 'cat' or self.dest == 'subcat':
-            self.validate_categories(split_value)
+            self.validate_categories(split_arg_values)
 
     @staticmethod
     def validate_categories(values):
