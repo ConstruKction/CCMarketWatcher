@@ -20,9 +20,9 @@ def create_item_object_list(items_string):
         item_object_list.extend(filter_item_listings(json_object for json_object in MARKET_JSON))
     else:
         item_object_list.extend(
-            filter_item_listings(get_item_group(lookup_item_name)) for lookup_item_name in items_string)
+            filter_item_listings(get_item_group(lookup_item_name) for lookup_item_name in items_string))
 
-    return sorted(item_object_list[0],
+    return sorted(item_object_list,
                   key=lambda item: getattr(item, args.sort.replace('name', 'full_name')),
                   reverse=args.desc)
 
