@@ -1,10 +1,13 @@
 import argparse
+import locale
 import logging
 
 from item import Item
 from market_request import MarketRequest
 from parser import Parser
 from split_args import SplitArgs
+
+locale.setlocale(locale.LC_ALL, '')
 
 MARKET_JSON = MarketRequest().get_json()
 
