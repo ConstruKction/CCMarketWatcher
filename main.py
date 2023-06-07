@@ -16,18 +16,21 @@ item_parser = Parser()
 def create_item_object_list(items_string):
     item_object_list = []
 
-    if items_string is None:
-        return item_object_list
+    if not items_string:
+        item_object_list.extend(filter_item_listings(json_object for json_object in MARKET_JSON))
+    else:
+        item_object_list.extend(
+            filter_item_listings(get_item_group(lookup_item_name)) for lookup_item_name in items_string)
 
-    for lookup_item_name in items_string:
-        item_object_list.extend(filter_item_listings(get_item_group(lookup_item_name)))
-
-    log_details(sorted(item_object_list,
-                       key=lambda item: getattr(item, args.sort.replace('name', 'full_name')),
-                       reverse=args.desc))
+    return sorted(item_object_list[0],
+                  key=lambda item: getattr(item, args.sort.replace('name', 'full_name')),
+                  reverse=args.desc)
 
 
 def log_details(item_list):
+    if not item_list:
+        return
+
     for item in item_list:
         details = f"{item.quality}{item.full_name}" \
                   f"{item_parser.parse_plus(item.plus)}" \
@@ -49,6 +52,10 @@ def filter_item_listings(item_objects_list):
     for item_object in item_objects_list:
         if args.region and item_object['ServerName'] not in args.region:
             continue
+        elif args.cat and item_object['ItemMajorClass'].replace(' ', '_') not in args.cat:
+            continue
+        elif args.subcat and item_object['ItemMinorClass'].replace(' ', '_') not in args.subcat:
+            continue
         elif args.quality and item_object['QualityName'] not in args.quality:
             continue
         elif args.plus and str(item_object['AdditionLevel']) not in args.plus:
@@ -62,6 +69,8 @@ def filter_item_listings(item_objects_list):
         else:
             return_item = Item()
             return_item.full_name = item_object['AttributeName']
+            return_item.category = item_object['ItemMajorClass']
+            return_item.subcategory = item_object['ItemMinorClass']
             return_item.region = item_object['ServerName']
             return_item.quality = item_object['QualityName']
             return_item.gem1 = item_object['Gem1']
@@ -83,6 +92,12 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--item',
                         help='comma-separated item names (e.g. KylinGem, SoftBoots)',
                         action=SplitArgs)
+    parser.add_argument('--cat',
+                        help='comma-separated major item classes',
+                        action=SplitArgs)
+    parser.add_argument('--subcat',
+                        help='comma-separated minor item classes',
+                        action=SplitArgs)
     parser.add_argument('-q', '--quality',
                         help='comma-separated qualities (e.g. Elite,Super)',
                         action=SplitArgs)
@@ -100,10 +115,11 @@ if __name__ == '__main__':
                         type=int)
     parser.add_argument('-s', '--sort',
                         help='sort by (lowest number/alphabetically from top)',
-                        choices=['region', 'name', 'quality', 'plus', 'gem1', 'gem2', 'seller', 'price'])
+                        choices=['region', 'name', 'category', 'subcategory', 'quality',
+                                 'plus', 'gem1', 'gem2', 'seller', 'price'])
     parser.add_argument('-d', '--desc',
                         help='reverse sorting',
                         action='store_true')
     args = parser.parse_args()
 
-    create_item_object_list(args.item)
+    log_details(create_item_object_list(args.item))
